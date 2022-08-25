@@ -1,0 +1,71 @@
+package br.com.alura.gerenciador.servlet;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import br.com.alura.gerenciador.acao.AlteraEmpresas;
+import br.com.alura.gerenciador.acao.ListaEmpresas;
+import br.com.alura.gerenciador.acao.MostraEmpresas;
+import br.com.alura.gerenciador.acao.NovaEmpresa;
+import br.com.alura.gerenciador.acao.RemoveEmpresas;
+import br.com.alura.gerenciador.acao.novaEmpresaForm;
+
+@WebServlet("/entrada")
+public class UnicaEntradaServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void service(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String paramAcao = request.getParameter("acao");
+		String nome = null;
+
+		String classeNome = "br.com.alura.gerenciador.acao." + paramAcao;
+		Class classe = Class.forName(classeNome);
+		Object objt = classe.newInstance();
+		String nome = objt.executa(request, response);
+		
+		
+		if (paramAcao.equals("ListaEmpresas")) {
+			ListaEmpresas acao = new ListaEmpresas();
+			nome = acao.executa(request, response);
+
+		} else if (paramAcao.equals("RemoveEmpresas")) {
+			RemoveEmpresas acao = new RemoveEmpresas();
+			nome = acao.executa(request, response);
+
+		} else if (paramAcao.equals("MostraEmpresas")) {
+			MostraEmpresas acao = new MostraEmpresas();
+			nome = acao.executa(request, response);
+
+		} else if (paramAcao.equals("AlteraEmpresas")) {
+			AlteraEmpresas acao = new AlteraEmpresas();
+			nome = acao.executa(request, response);
+
+		} else if (paramAcao.equals("NovaEmpresa")) {
+			NovaEmpresa acao = new NovaEmpresa();
+			nome = acao.executa(request, response);
+
+		} else if (paramAcao.equals("NovaEmpresaForm")) {
+			novaEmpresaForm acao = new novaEmpresaForm();
+			nome = acao.executa(request, response);
+
+		}
+
+		String[] nomeFormatado = nome.split(":");
+
+		if (nomeFormatado[0].equals("foward")) {
+			RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/view/" + nomeFormatado[1]);
+			rd.forward(request, response);
+		} else {
+			response.sendRedirect(nomeFormatado[1]);
+		}
+
+	}
+}
